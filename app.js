@@ -28,6 +28,16 @@
     return el;
   }
 
+  // Een link die in een nieuw tabblad opent, met een verborgen
+  // melding daarover voor schermlezers.
+  function nieuwTabbladLink(a, adres) {
+    a.href = adres;
+    a.target = "_blank";
+    a.rel = "noopener noreferrer";
+    a.appendChild(maak("span", "onzichtbaar", " " + G.nieuwTabblad));
+    return a;
+  }
+
   // Een bedrag met een duidelijke VOORBEELD-markering erbij.
   function voorbeeld(waarde) {
     var span = maak("span", "voorbeeld");
@@ -38,30 +48,51 @@
 
   /* ---------- Vaste teksten invullen ---------- */
   document.querySelectorAll("[data-tekst]").forEach(function (el) {
-    el.textContent = tekst(el.getAttribute("data-tekst"));
+    el.textContent = tekst(el.getAttribute("data-tekst")) || "";
   });
   document.querySelectorAll(".terug").forEach(function (el) {
     el.textContent = "← " + G.terugKnop;
   });
 
   /* ---------- Scherm 1 ---------- */
-  var adresVeld = document.getElementById("adres");
-  var labelVeld = document.getElementById("label");
+  var postcodeVeld = document.getElementById("postcode");
+  var huisnummerVeld = document.getElementById("huisnummer");
   var melding = document.getElementById("label-melding");
+  var knoppenVak = document.getElementById("labelknoppen");
 
-  adresVeld.placeholder = G.start.adresVoorbeeld;
+  postcodeVeld.placeholder = G.start.postcodeVoorbeeld;
+  huisnummerVeld.placeholder = G.start.huisnummerVoorbeeld;
 
-  labelVeld.appendChild(new Option(G.start.labelKiesTekst, ""));
+  var punten = document.getElementById("punten");
+  G.start.punten.forEach(function (p) { punten.appendChild(maak("li", "", p)); });
+
+  // Keuzeknoppen voor het label, in drie rijen: A t/m G, de labels
+  // boven A, en de brede knoppen.
+  var rijen = [maak("div", "labelrij"), maak("div", "labelrij"), maak("div", "labelrij labelrij-breed")];
   G.labels.forEach(function (l, i) {
-    labelVeld.appendChild(new Option(l.naam, String(i)));
+    var keuze = maak("div", "labelkeuze");
+    var invoer = document.createElement("input");
+    invoer.type = "radio";
+    invoer.name = "label";
+    invoer.id = "label-" + i;
+    invoer.value = String(i);
+    var lab = maak("label", "", l.naam);
+    lab.htmlFor = invoer.id;
+    keuze.appendChild(invoer);
+    keuze.appendChild(lab);
+    rijen[l.breed ? 2 : (l.rij === 2 ? 1 : 0)].appendChild(keuze);
   });
+  rijen.forEach(function (r) { if (r.firstChild) knoppenVak.appendChild(r); });
+
+  function gekozenLabel() {
+    var aan = document.querySelector('input[name="label"]:checked');
+    return aan ? Number(aan.value) : -1;
+  }
 
   // De link werkt pas als in gegevens.js een echt webadres staat.
   var link = document.getElementById("opzoeken-link");
   if (/^https?:\/\//.test(G.start.opzoekenLink)) {
-    link.href = G.start.opzoekenLink;
-    link.target = "_blank";
-    link.rel = "noopener noreferrer";
+    nieuwTabbladLink(link, G.start.opzoekenLink);
   } else {
     link.href = "#";
     link.addEventListener("click", function (e) { e.preventDefault(); });
@@ -70,33 +101,55 @@
 
   function verbergMelding() {
     melding.textContent = "";
-    labelVeld.removeAttribute("aria-invalid");
   }
-  labelVeld.addEventListener("change", verbergMelding);
+  knoppenVak.addEventListener("change", verbergMelding);
 
   document.getElementById("startformulier").addEventListener("submit", function (e) {
     e.preventDefault();
-    if (labelVeld.value === "") {
+    var index = gekozenLabel();
+    if (index < 0) {
       melding.textContent = G.start.meldingGeenLabel;
-      labelVeld.setAttribute("aria-invalid", "true");
-      labelVeld.focus();
+      knoppenVak.querySelector("input").focus();
+      return;
+    }
+    if (G.labels[index].weetNiet) {
+      melding.textContent = G.start.meldingWeetNiet;
       return;
     }
     verbergMelding();
-    gekozen.adres = adresVeld.value.trim();
-    gekozen.labelIndex = Number(labelVeld.value);
+    var postcode = postcodeVeld.value.trim().toUpperCase().replace(/^(\d{4})\s*([A-Z]{2})$/, "$1 $2");
+    var huisnummer = huisnummerVeld.value.trim();
+    gekozen.adres = [postcode, huisnummer].filter(Boolean).join(" ");
+    gekozen.labelIndex = index;
     vulUitkomst();
     gaNaar("uitkomst");
   });
 
   /* ---------- Scherm 2 ---------- */
+  var deelStatus = document.getElementById("deel-status");
+  var deelTekst = document.getElementById("deel-tekst");
+
   function vulUitkomst() {
     var l = G.labels[gekozen.labelIndex];
+    var aankoop = document.getElementById("bedrag-aankoop");
     document.getElementById("toon-adres").textContent = gekozen.adres || G.uitkomst.geenAdres;
     document.getElementById("toon-label").textContent = l.kort;
-    document.getElementById("bedrag-aankoop").textContent = euro(l.aankoop);
+    if (l.aankoop === null) {
+      aankoop.textContent = G.uitkomst.aankoopGeenLabel;
+      aankoop.classList.add("bedrag-zin");
+    } else {
+      aankoop.textContent = euro(l.aankoop);
+      aankoop.classList.remove("bedrag-zin");
+    }
     document.getElementById("bedrag-verduurzaming").textContent = euro(l.verduurzaming);
+    deelStatus.textContent = "";
+    deelTekst.hidden = true;
   }
+
+  var verduurzamingPunten = document.getElementById("verduurzaming-punten");
+  G.uitkomst.verduurzamingPunten.forEach(function (p) {
+    verduurzamingPunten.appendChild(maak("li", "", p));
+  });
 
   var groepen = document.getElementById("uitgeven-groepen");
   G.uitkomst.uitgevenGroepen.forEach(function (groep) {
@@ -113,6 +166,92 @@
 
   document.getElementById("energie-waarde").appendChild(voorbeeld(G.uitkomst.energieWaarde));
 
+  // Bij het eerste gebruik van een moeilijk woord komt een knopje
+  // "Wat is dit?" dat een uitleg van één zin uitklapt.
+  var vakken = document.querySelectorAll("#scherm-uitkomst .met-begrippen");
+  G.uitkomst.begrippen.forEach(function (b, i) {
+    var woord = b.woord.toLowerCase();
+    for (var v = 0; v < vakken.length; v++) {
+      var lopen = document.createTreeWalker(vakken[v], NodeFilter.SHOW_TEXT);
+      var node;
+      while ((node = lopen.nextNode())) {
+        if (node.parentNode.closest(".wat-knop, .begrip-uitleg")) continue;
+        var plek = node.nodeValue.toLowerCase().indexOf(woord);
+        if (plek < 0) continue;
+        var rest = node.splitText(plek + woord.length);
+        var knop = maak("button", "wat-knop", G.uitkomst.watIsDitKnop);
+        knop.type = "button";
+        knop.appendChild(maak("span", "onzichtbaar", " (" + b.woord + ")"));
+        knop.setAttribute("aria-expanded", "false");
+        knop.setAttribute("aria-controls", "begrip-" + i);
+        var uitleg = maak("span", "begrip-uitleg", b.uitleg);
+        uitleg.id = "begrip-" + i;
+        uitleg.hidden = true;
+        knop.addEventListener("click", function () {
+          var open = this.getAttribute("aria-expanded") === "true";
+          this.setAttribute("aria-expanded", String(!open));
+          document.getElementById(this.getAttribute("aria-controls")).hidden = open;
+        });
+        rest.parentNode.insertBefore(document.createTextNode(" "), rest);
+        rest.parentNode.insertBefore(knop, rest);
+        node.parentNode.closest("li, p").appendChild(uitleg);
+        return;
+      }
+    }
+  });
+
+  // De bronregel met twee links.
+  var bron = document.getElementById("bron");
+  bron.appendChild(document.createTextNode(G.uitkomst.bron.voor));
+  G.uitkomst.bron.links.forEach(function (b, i) {
+    if (i > 0) bron.appendChild(document.createTextNode(G.uitkomst.bron.tussen));
+    bron.appendChild(nieuwTabbladLink(maak("a", "", b.tekst), b.link));
+  });
+  bron.appendChild(document.createTextNode(G.uitkomst.bron.na));
+
+  // Bewaren of delen: op een telefoon het deelmenu, anders kopiëren.
+  // Het adres gaat niet mee. Er wordt niets naar een server gestuurd.
+  function samenvatting() {
+    var l = G.labels[gekozen.labelIndex];
+    var u = G.uitkomst;
+    return [
+      G.appNaam,
+      u.labelKop + ": " + l.kort,
+      u.aankoopKop + ": " + (l.aankoop === null ? u.aankoopGeenLabel : euro(l.aankoop)),
+      u.verduurzamingKop + ": " + euro(l.verduurzaming),
+      G.disclaimer,
+      location.origin + location.pathname
+    ].join("\n");
+  }
+
+  function toonHandmatig(t) {
+    deelStatus.textContent = G.uitkomst.deelMislukt;
+    deelTekst.value = t;
+    deelTekst.hidden = false;
+    deelTekst.focus();
+    deelTekst.select();
+  }
+
+  deelTekst.setAttribute("aria-label", G.uitkomst.deelKnop);
+
+  document.getElementById("deel-knop").addEventListener("click", function () {
+    var t = samenvatting();
+    deelStatus.textContent = "";
+    deelTekst.hidden = true;
+    var telefoon = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
+    if (telefoon && navigator.share) {
+      navigator.share({ title: G.appNaam, text: t }).catch(function (fout) {
+        if (fout && fout.name !== "AbortError") toonHandmatig(t);
+      });
+    } else if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(t).then(function () {
+        deelStatus.textContent = G.uitkomst.deelGekopieerd;
+      }, function () { toonHandmatig(t); });
+    } else {
+      toonHandmatig(t);
+    }
+  });
+
   /* ---------- Scherm 3 ---------- */
   var woning = document.getElementById("rapport-woning");
   woning.parentNode.replaceChild(voorbeeld(G.rapport.woning), woning);
@@ -126,7 +265,7 @@
   ];
   var rapport = document.getElementById("rapport-onderdelen");
   onderdelen.forEach(function (o) {
-    var blok = maak("div", "blok");
+    var blok = maak("div", "kaart");
     blok.appendChild(maak("h2", "", G.rapport[o[0]]));
     var lijst = maak("ul", "rijen");
     G.rapport[o[1]].forEach(function (rij) {

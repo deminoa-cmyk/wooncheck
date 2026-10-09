@@ -5,11 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="referrer" content="no-referrer">
   <title>Wooncheck</title>
+  <link rel="preload" href="lettertype.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="stijl.css">
 </head>
 <body>
   <header class="kopbalk">
-    <div class="kolom"><span class="logo" data-tekst="appNaam"></span></div>
+    <div class="kolom">
+      <span class="logo" data-tekst="appNaam"></span>
+      <p class="kopregel" data-tekst="kopregel"></p>
+    </div>
   </header>
 
   <main class="kolom">
@@ -18,25 +22,39 @@
     <section id="scherm-start" class="scherm" aria-labelledby="start-titel">
       <h1 id="start-titel" tabindex="-1" data-tekst="start.titel"></h1>
       <p class="intro" data-tekst="start.intro"></p>
+      <ul id="punten" class="punten"></ul>
+      <p class="duur" data-tekst="start.duur"></p>
 
-      <form id="startformulier" novalidate>
-        <div class="veld">
-          <label for="adres" data-tekst="start.adresLabel"></label>
-          <input id="adres" name="adres" type="text" autocomplete="off" aria-describedby="adres-uitleg">
+      <form id="startformulier" class="kaart" novalidate>
+        <fieldset class="groep-velden">
+          <legend data-tekst="start.adresLabel"></legend>
+          <div class="adres-rij">
+            <div class="veld veld-postcode">
+              <label for="postcode" data-tekst="start.postcodeLabel"></label>
+              <div class="met-icoon">
+                <svg class="icoon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M12 21s-6.5-6.2-6.5-11.2a6.5 6.5 0 0 1 13 0C18.5 14.8 12 21 12 21z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="12" cy="9.8" r="2.4" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+                <input id="postcode" name="postcode" type="text" autocomplete="off" maxlength="7" aria-describedby="adres-uitleg">
+              </div>
+            </div>
+            <div class="veld veld-huisnummer">
+              <label for="huisnummer" data-tekst="start.huisnummerLabel"></label>
+              <input id="huisnummer" name="huisnummer" type="text" autocomplete="off" maxlength="10" aria-describedby="adres-uitleg">
+            </div>
+          </div>
           <p id="adres-uitleg" class="hulptekst" data-tekst="start.adresUitleg"></p>
-        </div>
+        </fieldset>
 
-        <div class="veld">
-          <label for="label" data-tekst="start.labelVraag"></label>
-          <select id="label" name="label" aria-describedby="label-melding"></select>
+        <fieldset class="groep-velden" aria-describedby="label-melding">
+          <legend data-tekst="start.labelVraag"></legend>
+          <div id="labelknoppen"></div>
           <p id="label-melding" class="melding" role="alert"></p>
           <p class="hulptekst">
             <a id="opzoeken-link" data-tekst="start.opzoekenTekst"></a>
             <span id="opzoeken-markering" class="tussen-haken"></span>
           </p>
-        </div>
+        </fieldset>
 
-        <button type="submit" class="knop" data-tekst="start.knop"></button>
+        <button type="submit" class="knop"><span data-tekst="start.knop"></span> <span class="pijl" aria-hidden="true">→</span></button>
       </form>
     </section>
 
@@ -45,49 +63,55 @@
       <button type="button" class="terug" data-naar="start"></button>
       <h1 id="uitkomst-titel" tabindex="-1" data-tekst="uitkomst.titel"></h1>
 
-      <dl class="gekozen">
-        <div><dt data-tekst="uitkomst.adresKop"></dt><dd id="toon-adres"></dd></div>
-        <div><dt data-tekst="uitkomst.labelKop"></dt><dd id="toon-label"></dd></div>
-      </dl>
+      <p class="gekozen">
+        <span class="chip"><span class="onzichtbaar"><span data-tekst="uitkomst.labelKop"></span>: </span><span id="toon-label"></span></span>
+        <span class="gekozen-adres"><span class="onzichtbaar"><span data-tekst="uitkomst.adresKop"></span>: </span><span id="toon-adres"></span></span>
+      </p>
 
-      <div class="bedragen">
-        <div class="bedrag-kaart">
-          <h2 data-tekst="uitkomst.aankoopKop"></h2>
-          <p class="bedrag" id="bedrag-aankoop"></p>
-          <p data-tekst="uitkomst.aankoopUitleg"></p>
-        </div>
-        <div class="bedrag-kaart">
-          <h2 data-tekst="uitkomst.verduurzamingKop"></h2>
-          <p class="bedrag" id="bedrag-verduurzaming"></p>
-          <p data-tekst="uitkomst.verduurzamingUitleg"></p>
-        </div>
+      <div class="kaart hoofdkaart">
+        <h2 data-tekst="uitkomst.aankoopKop"></h2>
+        <p class="bedrag" id="bedrag-aankoop"></p>
+        <p class="uitleg met-begrippen" data-tekst="uitkomst.aankoopUitleg"></p>
       </div>
 
-      <details class="blok uitklap">
-        <summary data-tekst="uitkomst.uitgevenKop"></summary>
-        <div id="uitgeven-groepen"></div>
-      </details>
-
-      <div class="blok">
-        <h2 data-tekst="uitkomst.vragenKop"></h2>
-        <ul id="vragen" class="vragenlijst"></ul>
+      <div class="kaart">
+        <h2 data-tekst="uitkomst.verduurzamingKop"></h2>
+        <p class="bedrag" id="bedrag-verduurzaming"></p>
+        <ul id="verduurzaming-punten" class="uitleg uitlegpunten met-begrippen"></ul>
+        <details class="uitklap">
+          <summary><span data-tekst="uitkomst.uitgevenKop"></span></summary>
+          <div id="uitgeven-groepen"></div>
+        </details>
       </div>
 
-      <div class="blok">
+      <div class="kaart zacht">
+        <h2 class="kop-met-icoon">
+          <svg class="icoon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2V16h5v-.1c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span data-tekst="uitkomst.vragenKop"></span>
+        </h2>
+        <ul id="vragen" class="vragenlijst met-begrippen"></ul>
+      </div>
+
+      <div class="kaart">
         <h2 data-tekst="uitkomst.energieKop"></h2>
-        <p><span id="energie-waarde"></span> <span data-tekst="uitkomst.energieUitleg"></span></p>
+        <p class="energie"><span id="energie-waarde"></span> <span data-tekst="uitkomst.energieUitleg"></span></p>
       </div>
 
-      <button type="button" class="knop" data-naar="rapport" data-tekst="uitkomst.rapportKnop"></button>
+      <div class="knoppen">
+        <button type="button" class="knop" data-naar="rapport"><span data-tekst="uitkomst.rapportKnop"></span> <span class="pijl" aria-hidden="true">→</span></button>
+        <button type="button" class="knop knop-licht" id="deel-knop" data-tekst="uitkomst.deelKnop"></button>
+      </div>
+      <p id="deel-status" class="deel-status" role="status"></p>
+      <textarea id="deel-tekst" class="deel-tekst" rows="7" readonly aria-describedby="deel-status" hidden></textarea>
 
-      <p class="bron" data-tekst="uitkomst.bron"></p>
+      <p class="bron" id="bron"></p>
     </section>
 
     <!-- SCHERM 3: VOORBEELDRAPPORT -->
     <section id="scherm-rapport" class="scherm" aria-labelledby="rapport-titel" hidden>
       <button type="button" class="terug" data-naar="uitkomst"></button>
       <h1 id="rapport-titel" tabindex="-1" data-tekst="rapport.titel"></h1>
-      <p data-tekst="rapport.intro"></p>
+      <p class="intro" data-tekst="rapport.intro"></p>
       <p class="rapport-woning"><span id="rapport-woning"></span></p>
 
       <div id="rapport-onderdelen"></div>

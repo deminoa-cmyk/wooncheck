@@ -10,6 +10,7 @@
   Leennormen 2026. Gecontroleerd op 9 oktober 2026.
 
   Bedragen staan in hele euro's, zonder punt (dus 20000, niet 20.000).
+  Een tekst die leeg is ("") wordt niet getoond.
 */
 
 window.GEGEVENS = {
@@ -17,40 +18,53 @@ window.GEGEVENS = {
   /* ---------- Algemeen ---------- */
   appNaam: "Wooncheck",
 
+  // Eén zin onder de naam bovenaan: wie maakt Wooncheck en waarom.
+  // Nog leeg, vul hem zelf in.
+  kopregel: "",
+
   disclaimer: "Dit is een schatting en geen financieel advies. Vraag een hypotheekadviseur naar je maximale hypotheek.",
 
   terugKnop: "Terug",
 
+  // Wordt voorgelezen bij links die in een nieuw tabblad openen.
+  nieuwTabblad: "(opent in een nieuw tabblad)",
+
   /* ---------- Scherm 1: Start ---------- */
   start: {
     titel: "Wat betekent het energielabel voor je hypotheek?",
-    intro: "[INTRO, PAS IK ZELF AAN] Het energielabel van een huis bepaalt mee hoeveel een geldverstrekker je mag lenen. Vul het adres en het label in en zie wat dat betekent, en wat je je hypotheekadviseur kunt vragen.",
+    // Jouw introductie, maximaal twee zinnen. Nog leeg, vul hem zelf in.
+    intro: "",
+    punten: [
+      "Zie wat het energielabel doet met je leenruimte",
+      "Zie waar je extra geld voor verduurzaming aan mag uitgeven",
+      "Krijg vragen mee voor je hypotheekadviseur"
+    ],
+    duur: "Invullen duurt minder dan een minuut.",
     adresLabel: "Adres van de woning",
-    adresVoorbeeld: "Bijvoorbeeld Dorpsstraat 1, Utrecht",
+    postcodeLabel: "Postcode",
+    postcodeVoorbeeld: "1234 AB",
+    huisnummerLabel: "Huisnummer",
+    huisnummerVoorbeeld: "12",
     adresUitleg: "We bewaren je adres niet.",
     labelVraag: "Energielabel van de woning",
-    labelKiesTekst: "Kies een label",
     opzoekenTekst: "Weet je het label niet? Zoek het op",
-    // Vul hier het webadres in, bijvoorbeeld "https://...". Zolang hier
-    // [LINK ENERGIELABEL OPZOEKEN] staat, werkt de link nog niet.
-    opzoekenLink: "[LINK ENERGIELABEL OPZOEKEN]",
+    opzoekenLink: "https://www.energielabel.nl/woningen/zoek-je-energielabel/",
     knop: "Bekijk mijn check",
-    meldingGeenLabel: "Kies eerst een energielabel."
+    meldingGeenLabel: "Kies eerst een energielabel.",
+    meldingWeetNiet: "Zoek eerst het label op via de link hieronder."
   },
 
   /* ---------- Leennormen 2026 (in euro's) ----------
-     Volgorde = volgorde in de keuzelijst.
-     naam          = tekst in de keuzelijst
+     Volgorde = volgorde van de keuzeknoppen.
+     naam          = tekst op de keuzeknop
      kort          = tekst op scherm 2
-     aankoop       = extra voor aankoop
+     aankoop       = extra voor aankoop (null = geen bedrag, toon zin)
      verduurzaming = extra voor verduurzaming
+     rij: 2        = knop op de tweede rij (labels boven A)
+     breed: true   = brede knop over de hele regel
+     weetNiet: true = niet doorgaan, maar melding tonen
   */
   labels: [
-    { naam: "A++++ met energieprestatiegarantie van minimaal tien jaar", kort: "A++++ met garantie", aankoop: 40000, verduurzaming: 0 },
-    { naam: "A++++", kort: "A++++", aankoop: 30000, verduurzaming: 0 },
-    { naam: "A+++",  kort: "A+++",  aankoop: 25000, verduurzaming: 0 },
-    { naam: "A++",   kort: "A++",   aankoop: 20000, verduurzaming: 10000 },
-    { naam: "A+",    kort: "A+",    aankoop: 20000, verduurzaming: 10000 },
     { naam: "A",     kort: "A",     aankoop: 10000, verduurzaming: 10000 },
     { naam: "B",     kort: "B",     aankoop: 10000, verduurzaming: 10000 },
     { naam: "C",     kort: "C",     aankoop: 5000,  verduurzaming: 15000 },
@@ -58,7 +72,13 @@ window.GEGEVENS = {
     { naam: "E",     kort: "E",     aankoop: 0,     verduurzaming: 20000 },
     { naam: "F",     kort: "F",     aankoop: 0,     verduurzaming: 20000 },
     { naam: "G",     kort: "G",     aankoop: 0,     verduurzaming: 20000 },
-    { naam: "Geen label of weet ik niet", kort: "Geen label of weet ik niet", aankoop: 0, verduurzaming: 10000 }
+    { naam: "A+",    kort: "A+",    aankoop: 20000, verduurzaming: 10000, rij: 2 },
+    { naam: "A++",   kort: "A++",   aankoop: 20000, verduurzaming: 10000, rij: 2 },
+    { naam: "A+++",  kort: "A+++",  aankoop: 25000, verduurzaming: 0, rij: 2 },
+    { naam: "A++++", kort: "A++++", aankoop: 30000, verduurzaming: 0, rij: 2 },
+    { naam: "A++++ met energieprestatiegarantie van minimaal tien jaar", kort: "A++++ met garantie", aankoop: 40000, verduurzaming: 0, breed: true },
+    { naam: "Geen (geldig) energielabel", kort: "Geen (geldig) energielabel", aankoop: null, verduurzaming: 10000, breed: true },
+    { naam: "Weet ik niet", kort: "Weet ik niet", weetNiet: true, breed: true }
   ],
 
   /* ---------- Scherm 2: Uitkomst ---------- */
@@ -69,10 +89,26 @@ window.GEGEVENS = {
     labelKop: "Energielabel",
 
     aankoopKop: "Extra voor aankoop",
-    aankoopUitleg: "Dit is het bedrag dat een geldverstrekker je extra mag lenen ten opzichte van een woning met label E, F of G. Het komt bovenop wat je op basis van je inkomen kunt lenen.",
+    aankoopUitleg: "Dit is het bedrag dat een geldverstrekker je extra mag lenen vergeleken met een woning met label E, F of G. Het komt bovenop wat je op basis van je inkomen kunt lenen.",
+    // Staat op de plek van het bedrag bij "Geen (geldig) energielabel".
+    aankoopGeenLabel: "De regeling noemt geen extra bedrag voor een woning zonder label.",
 
     verduurzamingKop: "Extra voor verduurzaming",
-    verduurzamingUitleg: "Dit bedrag mag een geldverstrekker je extra lenen als je het uitgeeft aan energiebesparende maatregelen. Het is een maximum en het is niet verplicht. Het geld staat meestal in een bouwdepot, waaruit de facturen worden betaald. Of en hoe je het krijgt verschilt per geldverstrekker.",
+    verduurzamingPunten: [
+      "Dit bedrag mag een geldverstrekker je extra lenen als je het uitgeeft aan energiebesparende maatregelen. Het is een maximum en het is niet verplicht.",
+      "Het geld staat meestal in een bouwdepot, waaruit de rekeningen worden betaald.",
+      "Een geldverstrekker mag dit doen, maar hoeft het niet. De voorwaarden verschillen per geldverstrekker."
+    ],
+
+    // Uitleg bij moeilijke woorden. Bij het eerste gebruik op scherm 2
+    // verschijnt een knopje "Wat is dit?".
+    watIsDitKnop: "Wat is dit?",
+    begrippen: [
+      { woord: "geldverstrekker", uitleg: "De bank of andere partij die je de hypotheek geeft." },
+      { woord: "bouwdepot", uitleg: "Een aparte rekening bij je hypotheek waaruit de rekeningen van de verbouwing worden betaald." },
+      { woord: "energiebesparende maatregelen", uitleg: "Aanpassingen waardoor je huis minder energie verbruikt, zoals isolatie." },
+      { woord: "woningwaarde", uitleg: "Wat het huis volgens een taxateur waard is." }
+    ],
 
     uitgevenKop: "Waar mag ik dit aan uitgeven?",
     uitgevenGroepen: [
@@ -116,7 +152,8 @@ window.GEGEVENS = {
       "Bij welke geldverstrekkers kan ik het extra bedrag voor verduurzaming krijgen?",
       "Kan ik tot 106% van de woningwaarde lenen als ik verduurzaam?",
       "Hoe werkt het bouwdepot en welke offertes heb ik nodig?",
-      "Krijg ik rentekorting bij een beter energielabel?"
+      "Krijg ik rentekorting bij een beter energielabel?",
+      "Wat doet mijn studieschuld met wat ik kan lenen?"
     ],
 
     energieKop: "Schatting energiekosten per maand",
@@ -126,7 +163,22 @@ window.GEGEVENS = {
 
     rapportKnop: "Bekijk een voorbeeldrapport",
 
-    bron: "Leennormen 2026. Bron: Tijdelijke regeling hypothecair krediet (wetten.overheid.nl) en Volkshuisvesting Nederland. Gecontroleerd op 9 oktober 2026."
+    // Knop om de uitkomst te bewaren of te delen. Er wordt niets
+    // opgeslagen of naar een server gestuurd.
+    deelKnop: "Bewaar of deel deze uitkomst",
+    deelGekopieerd: "De samenvatting is gekopieerd. Je kunt hem nu ergens plakken, bijvoorbeeld in een notitie of bericht.",
+    deelMislukt: "Kopiëren lukte niet. Selecteer de tekst hieronder en kopieer hem zelf.",
+
+    // De bronregel: tekst ervoor, twee links, tekst erna.
+    bron: {
+      voor: "Leennormen 2026. Bron: ",
+      links: [
+        { tekst: "Tijdelijke regeling hypothecair krediet", link: "https://wetten.overheid.nl/BWBR0032503/2026-01-01" },
+        { tekst: "Volkshuisvesting Nederland", link: "https://www.volkshuisvestingnederland.nl/onderwerpen/huren-en-wonen/tijdelijke-regeling-hypothecair-krediet/maximale-hypotheek-op-basis-van-energielabel" }
+      ],
+      tussen: " en ",
+      na: ". Gecontroleerd op 9 oktober 2026."
+    }
   },
 
   /* ---------- Scherm 3: Voorbeeldrapport ----------
