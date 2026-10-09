@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="nl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <title>Wooncheck</title>
+  <link rel="stylesheet" href="stijl.css">
+</head>
+<body>
+  <header class="kopbalk">
+    <div class="kolom"><span class="logo" data-tekst="appNaam"></span></div>
+  </header>
+
+  <main class="kolom">
+
+    <!-- SCHERM 1: START -->
+    <section id="scherm-start" class="scherm" aria-labelledby="start-titel">
+      <h1 id="start-titel" tabindex="-1" data-tekst="start.titel"></h1>
+      <p class="intro" data-tekst="start.intro"></p>
+
+      <form id="startformulier" novalidate>
+        <div class="veld">
+          <label for="adres" data-tekst="start.adresLabel"></label>
+          <input id="adres" name="adres" type="text" autocomplete="off" aria-describedby="adres-uitleg">
+          <p id="adres-uitleg" class="hulptekst" data-tekst="start.adresUitleg"></p>
+        </div>
+
+        <div class="veld">
+          <label for="label" data-tekst="start.labelVraag"></label>
+          <select id="label" name="label" aria-describedby="label-melding"></select>
+          <p id="label-melding" class="melding" role="alert"></p>
+          <p class="hulptekst">
+            <a id="opzoeken-link" data-tekst="start.opzoekenTekst"></a>
+            <span id="opzoeken-markering" class="tussen-haken"></span>
+          </p>
+        </div>
+
+        <button type="submit" class="knop" data-tekst="start.knop"></button>
+      </form>
+    </section>
+
+    <!-- SCHERM 2: UITKOMST -->
+    <section id="scherm-uitkomst" class="scherm" aria-labelledby="uitkomst-titel" hidden>
+      <button type="button" class="terug" data-naar="start"></button>
+      <h1 id="uitkomst-titel" tabindex="-1" data-tekst="uitkomst.titel"></h1>
+
+      <dl class="gekozen">
+        <div><dt data-tekst="uitkomst.adresKop"></dt><dd id="toon-adres"></dd></div>
+        <div><dt data-tekst="uitkomst.labelKop"></dt><dd id="toon-label"></dd></div>
+      </dl>
+
+      <div class="bedragen">
+        <div class="bedrag-kaart">
+          <h2 data-tekst="uitkomst.aankoopKop"></h2>
+          <p class="bedrag" id="bedrag-aankoop"></p>
+          <p data-tekst="uitkomst.aankoopUitleg"></p>
+        </div>
+        <div class="bedrag-kaart">
+          <h2 data-tekst="uitkomst.verduurzamingKop"></h2>
+          <p class="bedrag" id="bedrag-verduurzaming"></p>
+          <p data-tekst="uitkomst.verduurzamingUitleg"></p>
+        </div>
+      </div>
+
+      <details class="blok uitklap">
+        <summary data-tekst="uitkomst.uitgevenKop"></summary>
+        <div id="uitgeven-groepen"></div>
+      </details>
+
+      <div class="blok">
+        <h2 data-tekst="uitkomst.vragenKop"></h2>
+        <ul id="vragen" class="vragenlijst"></ul>
+      </div>
+
+      <div class="blok">
+        <h2 data-tekst="uitkomst.energieKop"></h2>
+        <p><span id="energie-waarde"></span> <span data-tekst="uitkomst.energieUitleg"></span></p>
+      </div>
+
+      <button type="button" class="knop" data-naar="rapport" data-tekst="uitkomst.rapportKnop"></button>
+
+      <p class="bron" data-tekst="uitkomst.bron"></p>
+    </section>
+
+    <!-- SCHERM 3: VOORBEELDRAPPORT -->
+    <section id="scherm-rapport" class="scherm" aria-labelledby="rapport-titel" hidden>
+      <button type="button" class="terug" data-naar="uitkomst"></button>
+      <h1 id="rapport-titel" tabindex="-1" data-tekst="rapport.titel"></h1>
+      <p data-tekst="rapport.intro"></p>
+      <p class="rapport-woning"><span id="rapport-woning"></span></p>
+
+      <div id="rapport-onderdelen"></div>
+
+      <button type="button" class="knop" id="koop-knop" data-tekst="rapport.koopKnop"></button>
+      <p id="bedankt" class="bedankt" role="status"></p>
+    </section>
+
+  </main>
+
+  <footer class="voet">
+    <div class="kolom"><p data-tekst="disclaimer"></p></div>
+  </footer>
+
+  <script src="gegevens.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
