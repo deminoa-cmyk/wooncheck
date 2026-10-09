@@ -141,7 +141,7 @@ summary:focus-visible, textarea:focus-visible,
 .groep-velden { border: 0; margin: 0 0 1.5rem; padding: 0; min-width: 0; }
 legend { font-weight: 700; padding: 0; margin-bottom: 0.6rem; font-size: 1.05rem; }
 
-.adres-rij { display: grid; gap: 0.75rem; grid-template-columns: repeat(auto-fit, minmax(7.5rem, 1fr)); }
+.adres-rij { display: grid; gap: 0.75rem; grid-template-columns: repeat(auto-fit, minmax(min(7.5rem, 100%), 1fr)); }
 .veld { min-width: 0; }
 input[type="text"] { min-width: 0; }
 .veld label { display: block; font-weight: 600; font-size: 0.95rem; margin-bottom: 0.3rem; }
@@ -158,6 +158,27 @@ input[type="text"], textarea {
   border-radius: 0.75rem;
 }
 input::placeholder { color: #6b7471; }
+
+.adres-rij-auto { margin-top: 0.75rem; grid-template-columns: repeat(auto-fit, minmax(min(13rem, 100%), 1fr)); }
+input[readonly] { background: var(--creme); border-color: var(--rand-licht); color: var(--antraciet); }
+.adres-status { margin: 0.6rem 0 0; font-size: 0.92rem; font-weight: 600; color: var(--bosgroen-donker); }
+.adres-status:empty { display: none; }
+.label-status { margin: 0 0 0.6rem; }
+.adres-keuzes { display: grid; gap: 0.35rem; margin-top: 0.5rem; }
+.adres-keuze {
+  min-height: 2.75rem;
+  padding: 0.45rem 0.75rem;
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+  color: var(--antraciet);
+  background: var(--grijs-vlak);
+  border: 0;
+  border-radius: 0.6rem;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+.adres-keuze:hover { background: var(--saliegroen); }
 
 .met-icoon { position: relative; }
 .met-icoon .icoon { position: absolute; left: 0.9rem; top: 50%; transform: translateY(-50%); pointer-events: none; }

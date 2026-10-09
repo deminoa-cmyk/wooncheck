@@ -1,7 +1,8 @@
 /*
   WERKING VAN WOONCHECK
   Alle teksten en bedragen komen uit gegevens.js.
-  Er wordt niets opgeslagen of verstuurd.
+  Er wordt niets opgeslagen. Alleen postcode en huisnummer gaan naar
+  PDOK (de kaartendienst van de overheid) om het adres te controleren.
 */
 (function () {
   "use strict";
@@ -63,6 +64,180 @@
   postcodeVeld.placeholder = G.start.postcodeVoorbeeld;
   huisnummerVeld.placeholder = G.start.huisnummerVoorbeeld;
 
+  /* ---------- Adres controleren via PDOK ----------
+     PDOK is de gratis kaartendienst van de overheid. Alleen postcode en
+     huisnummer gaan daarheen; we bewaren niets. */
+  var PDOK = "https://api.pdok.nl/bzk/locatieserver/search/v3_1/free";
+  var straatVeld = document.getElementById("straat");
+  var woonplaatsVeld = document.getElementById("woonplaats");
+  var adresStatus = document.getElementById("adres-status");
+  var adresKeuzes = document.getElementById("adres-keuzes");
+  var gevonden = null;    // het gecontroleerde adres
+  var wachten = null;     // timer, zodat we niet bij elke toets zoeken
+  var lopend = null;      // de zoekvraag die nu loopt
+
+  function klein(t) { return String(t || "").toLowerCase().replace(/[\s-]/g, ""); }
+
+  function postcodeNetjes(p) { return p.replace(/^(\d{4})\s*([A-Z]{2})$/, "$1 $2"); }
+
+  function nummerTekst(d) {
+    return d.huisnummer + (d.huisletter || "") + (d.huisnummertoevoeging ? "-" + d.huisnummertoevoeging : "");
+  }
+
+  function adresTekst(d) {
+    return d.straatnaam + " " + nummerTekst(d) + ", " + postcodeNetjes(d.postcode) + " " + d.woonplaatsnaam;
+  }
+
+  function wisAdres() {
+    gevonden = null;
+    straatVeld.value = "";
+    woonplaatsVeld.value = "";
+    adresStatus.textContent = "";
+    adresKeuzes.textContent = "";
+    adresKeuzes.hidden = true;
+    wisLabelZoeken();
+  }
+
+  function kiesAdres(d) {
+    gevonden = { tekst: adresTekst(d), id: d.adresseerbaarobject_id };
+    straatVeld.value = d.straatnaam;
+    woonplaatsVeld.value = d.woonplaatsnaam;
+    huisnummerVeld.value = nummerTekst(d);
+    postcodeVeld.value = postcodeNetjes(d.postcode);
+    adresKeuzes.textContent = "";
+    adresKeuzes.hidden = true;
+    adresStatus.textContent = G.start.adresGevonden + " " + gevonden.tekst;
+    zoekLabel(gevonden.id);
+  }
+
+  /* ---------- Energielabel opzoeken via het tussenstation ----------
+     Het tussenstation (Cloudflare) vraagt het label op bij EP-Online met
+     een geheime sleutel. Alleen het adresnummer uit de BAG gaat erheen. */
+  var labelStatus = document.getElementById("label-status");
+  var labelLopend = null;
+
+  function wisLabelZoeken() {
+    if (labelLopend) labelLopend.abort();
+    labelLopend = null;
+    labelStatus.textContent = "";
+  }
+
+  function kiesLabelKnop(index) {
+    var knop = document.getElementById("label-" + index);
+    if (knop) knop.checked = true;
+    verbergMelding();
+  }
+
+  function vul(t, label, datum) {
+    return t.replace("{label}", label || "").replace("{datum}", datum || "");
+  }
+
+  function zoekLabel(id) {
+    wisLabelZoeken();
+    if (!G.start.labelDienst || !/^\d{16}$/.test(String(id || ""))) return;
+    var deze = new AbortController();
+    labelLopend = deze;
+    var stop = setTimeout(function () { deze.abort(); }, 10000);
+    labelStatus.textContent = G.start.labelZoeken;
+
+    fetch(G.start.labelDienst + "?id=" + encodeURIComponent(id), { signal: deze.signal, referrerPolicy: "no-referrer", credentials: "omit" })
+      .then(function (antwoord) {
+        if (!antwoord.ok) throw new Error("tussenstation " + antwoord.status);
+        return antwoord.json();
+      })
+      .then(function (data) {
+        clearTimeout(stop);
+        if (deze !== labelLopend) return;
+        if (!data.label) {
+          labelStatus.textContent = G.start.labelNietGevonden;
+          return;
+        }
+        var klasse = data.label.energieklasse;
+        var geldigTot = data.label.geldigTot ? new Date(data.label.geldigTot) : null;
+        if (geldigTot && !isNaN(geldigTot) && geldigTot < new Date()) {
+          var geen = G.labels.findIndex(function (l) { return l.aankoop === null; });
+          kiesLabelKnop(geen);
+          labelStatus.textContent = vul(G.start.labelVerlopen, klasse,
+            geldigTot.toLocaleDateString("nl-NL", { day: "numeric", month: "long", year: "numeric" }));
+          return;
+        }
+        var index = G.labels.findIndex(function (l) { return !l.breed && l.kort === klasse; });
+        if (index < 0) throw new Error("onbekend label " + klasse);
+        kiesLabelKnop(index);
+        labelStatus.textContent = vul(G.start.labelGevonden, klasse);
+      })
+      .catch(function () {
+        clearTimeout(stop);
+        if (deze !== labelLopend) return;
+        labelStatus.textContent = G.start.labelFout;
+      });
+  }
+
+  function toonKeuzes(lijst) {
+    adresStatus.textContent = G.start.adresKiezen;
+    adresKeuzes.textContent = "";
+    lijst.forEach(function (d) {
+      var knop = maak("button", "adres-keuze", adresTekst(d));
+      knop.type = "button";
+      knop.addEventListener("click", function () {
+        kiesAdres(d);
+        huisnummerVeld.focus();
+      });
+      adresKeuzes.appendChild(knop);
+    });
+    adresKeuzes.hidden = false;
+  }
+
+  function zoekAdres() {
+    var postcode = postcodeVeld.value.replace(/\s/g, "").toUpperCase();
+    var delen = huisnummerVeld.value.trim().match(/^(\d+)\s*-?\s*(.*)$/);
+    if (!/^\d{4}[A-Z]{2}$/.test(postcode) || !delen) return;
+    var nummer = delen[1];
+    var toevoeging = klein(delen[2]);
+
+    if (lopend) lopend.abort();
+    var deze = new AbortController();
+    lopend = deze;
+    var stop = setTimeout(function () { deze.abort(); }, 8000);
+    adresStatus.textContent = G.start.adresZoeken;
+
+    var vraag = PDOK + "?q=" + encodeURIComponent("postcode:" + postcode + " AND huisnummer:" + nummer) +
+      "&fq=type:adres&rows=50&fl=straatnaam,huisnummer,huisletter,huisnummertoevoeging,postcode,woonplaatsnaam,adresseerbaarobject_id";
+
+    fetch(vraag, { signal: deze.signal, referrerPolicy: "no-referrer", credentials: "omit" })
+      .then(function (antwoord) {
+        if (!antwoord.ok) throw new Error("PDOK " + antwoord.status);
+        return antwoord.json();
+      })
+      .then(function (data) {
+        clearTimeout(stop);
+        var lijst = (data.response && data.response.docs) || [];
+        lijst.sort(function (a, b) { return nummerTekst(a).localeCompare(nummerTekst(b), "nl", { numeric: true }); });
+        if (toevoeging) {
+          lijst = lijst.filter(function (d) {
+            return klein((d.huisletter || "") + (d.huisnummertoevoeging || "")) === toevoeging;
+          });
+        }
+        if (lijst.length === 1) kiesAdres(lijst[0]);
+        else if (lijst.length > 1) toonKeuzes(lijst);
+        else adresStatus.textContent = G.start.adresNietGevonden;
+      })
+      .catch(function (fout) {
+        clearTimeout(stop);
+        // Afgebroken omdat er al een nieuwe vraag loopt: niets melden.
+        if (deze !== lopend) return;
+        adresStatus.textContent = G.start.adresFout;
+      });
+  }
+
+  [postcodeVeld, huisnummerVeld].forEach(function (veld) {
+    veld.addEventListener("input", function () {
+      wisAdres();
+      clearTimeout(wachten);
+      wachten = setTimeout(zoekAdres, 400);
+    });
+  });
+
   var punten = document.getElementById("punten");
   G.start.punten.forEach(function (p) { punten.appendChild(maak("li", "", p)); });
 
@@ -117,9 +292,9 @@
       return;
     }
     verbergMelding();
-    var postcode = postcodeVeld.value.trim().toUpperCase().replace(/^(\d{4})\s*([A-Z]{2})$/, "$1 $2");
+    var postcode = postcodeNetjes(postcodeVeld.value.trim().toUpperCase());
     var huisnummer = huisnummerVeld.value.trim();
-    gekozen.adres = [postcode, huisnummer].filter(Boolean).join(" ");
+    gekozen.adres = gevonden ? gevonden.tekst : [postcode, huisnummer].filter(Boolean).join(" ");
     gekozen.labelIndex = index;
     vulUitkomst();
     gaNaar("uitkomst");

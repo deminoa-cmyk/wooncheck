@@ -44,8 +44,28 @@ window.GEGEVENS = {
     postcodeLabel: "Postcode",
     postcodeVoorbeeld: "1234 AB",
     huisnummerLabel: "Huisnummer",
-    huisnummerVoorbeeld: "12",
-    adresUitleg: "We bewaren je adres niet.",
+    huisnummerVoorbeeld: "12 of 12A",
+    straatLabel: "Straat",
+    woonplaatsLabel: "Woonplaats",
+    // Straat en woonplaats worden automatisch ingevuld via PDOK, de
+    // kaartendienst van de overheid. Alleen postcode en huisnummer gaan
+    // daarheen. Het energielabel komt van EP-Online (ook overheid).
+    adresUitleg: "We zoeken je adres op bij PDOK en het energielabel bij EP-Online, allebei diensten van de overheid. We bewaren je adres niet.",
+    adresZoeken: "Adres zoeken…",
+    adresGevonden: "Adres gevonden.",
+    adresKiezen: "Op dit huisnummer staan meer adressen. Kies het juiste adres:",
+    adresNietGevonden: "We vinden dit adres niet. Controleer de postcode en het huisnummer. Je kunt ook zonder adres verder.",
+    adresFout: "Het adres opzoeken lukt nu niet. Je kunt gewoon verder.",
+
+    // Het tussenstation dat het energielabel opzoekt bij EP-Online.
+    // Staat hier "" (leeg), dan wordt het label niet automatisch opgezocht.
+    // {label} en {datum} worden vervangen door het label en de datum.
+    labelDienst: "https://wooncheck-label.deminoa.workers.dev",
+    labelZoeken: "Energielabel zoeken…",
+    labelGevonden: "Energielabel gevonden: {label}. We hebben het hieronder voor je gekozen. Klopt het niet? Kies dan zelf een ander label.",
+    labelVerlopen: "Het energielabel van dit adres ({label}) is verlopen op {datum}. We hebben daarom 'Geen (geldig) energielabel' gekozen.",
+    labelNietGevonden: "Voor dit adres is geen energielabel geregistreerd. Kies hieronder zelf een label.",
+    labelFout: "Het energielabel opzoeken lukt nu niet. Kies het label hieronder zelf.",
     labelVraag: "Energielabel van de woning",
     opzoekenTekst: "Weet je het label niet? Zoek het op",
     opzoekenLink: "https://www.energielabel.nl/woningen/zoek-je-energielabel/",

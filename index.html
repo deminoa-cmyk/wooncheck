@@ -41,11 +41,24 @@
               <input id="huisnummer" name="huisnummer" type="text" autocomplete="off" maxlength="10" aria-describedby="adres-uitleg">
             </div>
           </div>
+          <p id="adres-status" class="adres-status" role="status"></p>
+          <div id="adres-keuzes" class="adres-keuzes" hidden></div>
+          <div class="adres-rij adres-rij-auto">
+            <div class="veld">
+              <label for="straat" data-tekst="start.straatLabel"></label>
+              <input id="straat" name="straat" type="text" readonly tabindex="-1">
+            </div>
+            <div class="veld">
+              <label for="woonplaats" data-tekst="start.woonplaatsLabel"></label>
+              <input id="woonplaats" name="woonplaats" type="text" readonly tabindex="-1">
+            </div>
+          </div>
           <p id="adres-uitleg" class="hulptekst" data-tekst="start.adresUitleg"></p>
         </fieldset>
 
         <fieldset class="groep-velden" aria-describedby="label-melding">
           <legend data-tekst="start.labelVraag"></legend>
+          <p id="label-status" class="adres-status label-status" role="status"></p>
           <div id="labelknoppen"></div>
           <p id="label-melding" class="melding" role="alert"></p>
           <p class="hulptekst">
