@@ -114,12 +114,47 @@
      Het tussenstation (Cloudflare) vraagt het label op bij EP-Online met
      een geheime sleutel. Alleen het adresnummer uit de BAG gaat erheen. */
   var labelStatus = document.getElementById("label-status");
+  var labelGevonden = document.getElementById("label-gevonden");
+  var labelBadge = document.getElementById("label-badge");
+  var labelGeldig = document.getElementById("label-geldig");
+  var labelAnders = document.getElementById("label-anders");
+  var labelKeuzes = document.getElementById("label-keuzes");
   var labelLopend = null;
+  var labelAutomatisch = -1;   // het label dat we zelf hebben gekozen
+
+  // "Op basis van EP-Online (…) is het energielabel voor deze woning:"
+  var labelBron = document.getElementById("label-bron");
+  labelBron.appendChild(document.createTextNode(G.start.labelBronVoor));
+  labelBron.appendChild(nieuwTabbladLink(maak("a", "", G.start.labelBronNaam), G.start.labelBronLink));
+  labelBron.appendChild(document.createTextNode(G.start.labelBronNa));
+
+  function toonLabelKeuzes(open) {
+    labelKeuzes.hidden = !open;
+    labelAnders.setAttribute("aria-expanded", String(open));
+  }
+
+  labelAnders.addEventListener("click", function () {
+    var open = labelKeuzes.hidden;
+    toonLabelKeuzes(open);
+    if (open) {
+      var aan = labelKeuzes.querySelector('input[name="label"]:checked') || labelKeuzes.querySelector("input");
+      aan.focus();
+    }
+  });
 
   function wisLabelZoeken() {
     if (labelLopend) labelLopend.abort();
     labelLopend = null;
     labelStatus.textContent = "";
+    labelGevonden.hidden = true;
+    toonLabelKeuzes(true);
+    labelAnders.setAttribute("aria-expanded", "false");
+    // Een label dat bij een vorig adres hoorde, halen we weer weg.
+    if (labelAutomatisch >= 0) {
+      var oud = document.getElementById("label-" + labelAutomatisch);
+      if (oud && oud.checked) oud.checked = false;
+      labelAutomatisch = -1;
+    }
   }
 
   function kiesLabelKnop(index) {
@@ -130,6 +165,22 @@
 
   function vul(t, label, datum) {
     return t.replace("{label}", label || "").replace("{datum}", datum || "");
+  }
+
+  function datumNetjes(d) {
+    return d.toLocaleDateString("nl-NL", { day: "numeric", month: "long", year: "numeric" });
+  }
+
+  // Toont het gevonden label in een eigen blok en verbergt de andere keuzes.
+  function toonGevonden(index, badge, regel) {
+    kiesLabelKnop(index);
+    labelAutomatisch = index;
+    labelBadge.textContent = badge;
+    labelBadge.classList.toggle("label-badge-lang", badge.length > 5);
+    labelGeldig.textContent = regel;
+    labelStatus.textContent = "";
+    labelGevonden.hidden = false;
+    toonLabelKeuzes(false);
   }
 
   function zoekLabel(id) {
@@ -154,17 +205,15 @@
         }
         var klasse = data.label.energieklasse;
         var geldigTot = data.label.geldigTot ? new Date(data.label.geldigTot) : null;
-        if (geldigTot && !isNaN(geldigTot) && geldigTot < new Date()) {
+        var geldig = geldigTot && !isNaN(geldigTot);
+        if (geldig && geldigTot < new Date()) {
           var geen = G.labels.findIndex(function (l) { return l.aankoop === null; });
-          kiesLabelKnop(geen);
-          labelStatus.textContent = vul(G.start.labelVerlopen, klasse,
-            geldigTot.toLocaleDateString("nl-NL", { day: "numeric", month: "long", year: "numeric" }));
+          toonGevonden(geen, G.labels[geen].naam, vul(G.start.labelVerlopen, klasse, datumNetjes(geldigTot)));
           return;
         }
         var index = G.labels.findIndex(function (l) { return !l.breed && l.kort === klasse; });
         if (index < 0) throw new Error("onbekend label " + klasse);
-        kiesLabelKnop(index);
-        labelStatus.textContent = vul(G.start.labelGevonden, klasse);
+        toonGevonden(index, klasse, geldig ? vul(G.start.labelGeldigTot, klasse, datumNetjes(geldigTot)) : "");
       })
       .catch(function () {
         clearTimeout(stop);
@@ -241,9 +290,9 @@
   var punten = document.getElementById("punten");
   G.start.punten.forEach(function (p) { punten.appendChild(maak("li", "", p)); });
 
-  // Keuzeknoppen voor het label, in drie rijen: A t/m G, de labels
-  // boven A, en de brede knoppen.
-  var rijen = [maak("div", "labelrij"), maak("div", "labelrij"), maak("div", "labelrij labelrij-breed")];
+  // Keuzeknoppen voor het label, in drie groepen met een kopje:
+  // A t/m G, de labels boven A, en overige keuzes.
+  var rijen = [maak("div", "labelrij"), maak("div", "labelrij labelrij-boven"), maak("div", "labelrij labelrij-breed")];
   G.labels.forEach(function (l, i) {
     var keuze = maak("div", "labelkeuze");
     var invoer = document.createElement("input");
@@ -257,7 +306,17 @@
     keuze.appendChild(lab);
     rijen[l.breed ? 2 : (l.rij === 2 ? 1 : 0)].appendChild(keuze);
   });
-  rijen.forEach(function (r) { if (r.firstChild) knoppenVak.appendChild(r); });
+  rijen.forEach(function (r, i) {
+    if (!r.firstChild) return;
+    var groep = maak("div", "labelgroep");
+    var kop = maak("p", "labelgroep-kop", G.start.labelGroepen[i] || "");
+    kop.id = "labelgroep-" + i;
+    groep.setAttribute("role", "group");
+    groep.setAttribute("aria-labelledby", kop.id);
+    groep.appendChild(kop);
+    groep.appendChild(r);
+    knoppenVak.appendChild(groep);
+  });
 
   function gekozenLabel() {
     var aan = document.querySelector('input[name="label"]:checked');

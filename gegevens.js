@@ -62,10 +62,19 @@ window.GEGEVENS = {
     // {label} en {datum} worden vervangen door het label en de datum.
     labelDienst: "https://wooncheck-label.deminoa.workers.dev",
     labelZoeken: "Energielabel zoeken…",
-    labelGevonden: "Energielabel gevonden: {label}. We hebben het hieronder voor je gekozen. Klopt het niet? Kies dan zelf een ander label.",
-    labelVerlopen: "Het energielabel van dit adres ({label}) is verlopen op {datum}. We hebben daarom 'Geen (geldig) energielabel' gekozen.",
+    // Het blok dat verschijnt als het label is gevonden:
+    // "Op basis van EP-Online (…) is het energielabel voor deze woning:"
+    labelBronVoor: "Op basis van ",
+    labelBronNaam: "EP-Online",
+    labelBronLink: "https://www.ep-online.nl/",
+    labelBronNa: " (de officiële registratie van energielabels van de overheid) is het energielabel voor deze woning:",
+    labelGeldigTot: "Geldig tot {datum}",
+    labelVerlopen: "Het laatste label ({label}) is verlopen op {datum}.",
+    labelAnders: "Ander label kiezen",
     labelNietGevonden: "Voor dit adres is geen energielabel geregistreerd. Kies hieronder zelf een label.",
     labelFout: "Het energielabel opzoeken lukt nu niet. Kies het label hieronder zelf.",
+    // Kopjes boven de drie groepen keuzeknoppen.
+    labelGroepen: ["A tot en met G", "Beter dan A", "Overig"],
     labelVraag: "Energielabel van de woning",
     opzoekenTekst: "Weet je het label niet? Zoek het op",
     opzoekenLink: "https://www.energielabel.nl/woningen/zoek-je-energielabel/",

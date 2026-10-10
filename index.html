@@ -59,12 +59,24 @@
         <fieldset class="groep-velden" aria-describedby="label-melding">
           <legend data-tekst="start.labelVraag"></legend>
           <p id="label-status" class="adres-status label-status" role="status"></p>
-          <div id="labelknoppen"></div>
+
+          <div id="label-gevonden" class="label-gevonden" aria-live="polite" hidden>
+            <p class="label-bron" id="label-bron"></p>
+            <div class="label-uitslag">
+              <span class="label-badge" id="label-badge"></span>
+              <span class="label-geldig" id="label-geldig"></span>
+            </div>
+            <button type="button" class="knop-tekst" id="label-anders" aria-expanded="false" aria-controls="label-keuzes" data-tekst="start.labelAnders"></button>
+          </div>
+
+          <div id="label-keuzes">
+            <div id="labelknoppen"></div>
+            <p class="hulptekst">
+              <a id="opzoeken-link" data-tekst="start.opzoekenTekst"></a>
+              <span id="opzoeken-markering" class="tussen-haken"></span>
+            </p>
+          </div>
           <p id="label-melding" class="melding" role="alert"></p>
-          <p class="hulptekst">
-            <a id="opzoeken-link" data-tekst="start.opzoekenTekst"></a>
-            <span id="opzoeken-markering" class="tussen-haken"></span>
-          </p>
         </fieldset>
 
         <button type="submit" class="knop"><span data-tekst="start.knop"></span> <span class="pijl" aria-hidden="true">→</span></button>

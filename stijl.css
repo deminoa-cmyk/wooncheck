@@ -188,10 +188,73 @@ input[readonly] { background: var(--creme); border-color: var(--rand-licht); col
 .melding { color: var(--fout); font-weight: 700; margin: 0.6rem 0 0; }
 .melding:empty { display: none; }
 
-/* Keuzeknoppen voor het label */
+/* Gevonden label */
+.label-gevonden {
+  padding: 1rem 1.1rem;
+  border-radius: 0.75rem;
+  background: var(--saliegroen-zacht);
+}
+.label-bron { margin: 0 0 0.75rem; font-size: 0.92rem; line-height: 1.55; }
+.label-uitslag { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem 0.9rem; }
+.label-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 3.75rem;
+  min-height: 3.25rem;
+  padding: 0.25rem 0.9rem;
+  border-radius: 0.6rem;
+  background: var(--bosgroen);
+  color: var(--wit);
+  font-size: 1.75rem;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+}
+.label-badge-lang { font-size: 1.05rem; }
+.label-geldig { font-size: 0.92rem; color: var(--tekst-zacht); }
+.label-geldig:empty { display: none; }
+
+/* Knop die eruitziet als een link, met een pijltje */
+.knop-tekst {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  margin-top: 0.5rem;
+  padding: 0;
+  font: inherit;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--bosgroen);
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+.knop-tekst::after {
+  content: "";
+  width: 0.45rem; height: 0.45rem;
+  border: solid currentColor;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg) translateY(-0.1rem);
+  transition: transform 0.15s;
+}
+.knop-tekst[aria-expanded="true"]::after { transform: rotate(-135deg) translateY(-0.1rem); }
+.knop-tekst:hover { text-decoration: underline; text-underline-offset: 3px; }
+.label-gevonden:not([hidden]) + #label-keuzes { margin-top: 1rem; }
+
+/* Keuzeknoppen voor het label, in groepen met een kopje */
+.labelgroep + .labelgroep { margin-top: 0.9rem; }
+.labelgroep-kop {
+  margin: 0 0 0.35rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--tekst-zacht);
+}
 .labelrij { display: grid; gap: 0.35rem; grid-template-columns: repeat(auto-fill, minmax(2.4rem, 1fr)); }
-.labelrij + .labelrij { margin-top: 0.35rem; }
-.labelrij:nth-child(2) { grid-template-columns: repeat(auto-fill, minmax(4rem, 1fr)); }
+.labelrij-boven { grid-template-columns: repeat(auto-fill, minmax(4rem, 1fr)); }
 .labelrij-breed { grid-template-columns: 1fr !important; }
 
 .labelkeuze { position: relative; }
@@ -215,9 +278,31 @@ input[readonly] { background: var(--creme); border-color: var(--rand-licht); col
   cursor: pointer;
 }
 .labelrij label { white-space: nowrap; padding-left: 0.25rem; padding-right: 0.25rem; }
-.labelrij-breed label { white-space: normal; overflow-wrap: anywhere; padding-left: 0.6rem; padding-right: 0.6rem; }
+/* Overige keuzes: een rustige lijst met een rondje ervoor */
+.labelrij-breed label {
+  position: relative;
+  justify-content: flex-start;
+  padding: 0.55rem 0.8rem 0.55rem 2.4rem;
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-align: left;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+.labelrij-breed label::before {
+  content: "";
+  position: absolute;
+  left: 0.85rem;
+  top: 50%;
+  width: 1rem; height: 1rem;
+  margin-top: -0.5rem;
+  border: 2px solid var(--veldrand);
+  border-radius: 50%;
+  background: var(--wit);
+}
 .labelkeuze label:hover { background: var(--saliegroen); }
 .labelkeuze input:checked + label { background: var(--bosgroen); color: var(--wit); }
+.labelrij-breed input:checked + label::before { border-color: var(--wit); box-shadow: inset 0 0 0 3px var(--bosgroen); }
 
 .tussen-haken { font-size: 0.85rem; font-weight: 600; }
 .tussen-haken:empty { display: none; }
