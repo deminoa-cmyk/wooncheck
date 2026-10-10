@@ -4,14 +4,26 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="referrer" content="no-referrer">
-  <title>Wooncheck</title>
+  <title>Labelruimte</title>
+  <link rel="icon" href="labelruimte-icoon.svg" type="image/svg+xml">
   <link rel="preload" href="lettertype.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="stijl.css">
 </head>
 <body>
   <header class="kopbalk">
     <div class="kolom">
-      <span class="logo" data-tekst="appNaam"></span>
+      <!-- Het logo staat hier in de pagina zelf, zodat de tekst het
+           lettertype van de site gebruikt. Zelfde tekening als
+           labelruimte-logo.svg. Klikken gaat naar het startscherm. -->
+      <a class="logo" href="#start">
+        <svg viewBox="0 0 470 96" role="img" aria-label="Labelruimte">
+          <path d="M48 8 12 38v42a8 8 0 0 0 8 8h56a8 8 0 0 0 8-8V38Z" fill="#2f6850"/>
+          <rect x="28" y="42" width="20" height="9" rx="4.5" fill="#F4F3EE"/>
+          <rect x="28" y="56" width="30" height="9" rx="4.5" fill="#F4F3EE" opacity=".8"/>
+          <rect x="28" y="70" width="40" height="9" rx="4.5" fill="#F4F3EE" opacity=".6"/>
+          <text x="108" y="66" font-size="52" font-weight="800" letter-spacing="-1" fill="#1C2321">Label<tspan fill="#2f6850">ruimte</tspan></text>
+        </svg>
+      </a>
       <p class="kopregel" data-tekst="kopregel"></p>
     </div>
   </header>

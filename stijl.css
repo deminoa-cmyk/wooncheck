@@ -1,5 +1,5 @@
 /*
-  UITERLIJK VAN WOONCHECK
+  UITERLIJK VAN LABELRUIMTE
   De kleuren staan hieronder bij elkaar. Verander een kleur door
   de code achter de naam aan te passen.
 */
@@ -62,13 +62,9 @@ body {
 
 /* ---------- Kop ---------- */
 .kopbalk { padding: 1.25rem 0 0.25rem; }
-.logo {
-  font-weight: 800;
-  font-size: 1.2rem;
-  color: var(--bosgroen);
-  text-transform: lowercase;
-  letter-spacing: -0.01em;
-}
+/* Het logo: 32 pixels hoog, de breedte past zich vanzelf aan. */
+.logo { display: inline-block; vertical-align: top; line-height: 0; border-radius: 0.4rem; }
+.logo svg { display: block; height: 2rem; width: 9.8rem; font-family: inherit; }
 .kopregel { margin: 0.2rem 0 0; font-size: 0.9rem; color: var(--tekst-zacht); }
 .kopregel:empty { display: none; }
 

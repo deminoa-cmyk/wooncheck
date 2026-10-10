@@ -1,6 +1,6 @@
 /*
-  GEGEVENS VOOR WOONCHECK
-  =======================
+  GEGEVENS VOOR LABELRUIMTE
+  =========================
   In dit bestand staan alle bedragen, lijsten en vaste teksten van de app.
   Wil je iets aanpassen? Verander alleen de tekst tussen de aanhalingstekens
   of het getal. Laat komma's, haakjes en aanhalingstekens staan.
@@ -16,9 +16,9 @@
 window.GEGEVENS = {
 
   /* ---------- Algemeen ---------- */
-  appNaam: "Wooncheck",
+  appNaam: "Labelruimte",
 
-  // Eén zin onder de naam bovenaan: wie maakt Wooncheck en waarom.
+  // Eén zin onder de naam bovenaan: wie maakt Labelruimte en waarom.
   // Nog leeg, vul hem zelf in.
   kopregel: "",
 

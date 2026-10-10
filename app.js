@@ -1,5 +1,5 @@
 /*
-  WERKING VAN WOONCHECK
+  WERKING VAN LABELRUIMTE
   Alle teksten en bedragen komen uit gegevens.js.
   Er wordt niets opgeslagen. Alleen postcode en huisnummer gaan naar
   PDOK (de kaartendienst van de overheid) om het adres te controleren.
